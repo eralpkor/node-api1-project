@@ -21,28 +21,51 @@ app.get("/api/users", (req, res) => {
 });
 
 // POST add a new user
-app.post("/api/users", (req, res) => {
+// app.post("/api/users", (req, res) => {
+//   console.log(req.body);
+//   const user = req.body;
+//   userData.insert(user)
+//     // .then(({ id }) => userData.findById(id))
+//     .then(userId => {
+//       userData.findById(userId.id)
+//         .then(user => {
+//           res.status(201).json(user);
+//         })
+//         .catch(err => {
+//           console.log(err);
+//           res.status(500).json({ error: "Server error retrieving user" });
+//         });
+//     })
+//     .catch(err => {
+//       console.log(err);
+//       res
+//         .status(400)
+//         .json({ errorMessage: "Please provide name and bio for the user." });
+//     });
+// });
+
+app.post('/api/users', (req, res) => {
   console.log(req.body);
-  const user = req.body;
-  userData.insert(user)
-    // .then(({ id }) => userData.findById(id))
-    .then(userId => {
-      userData.findById(userId.id)
+  const { name, bio } = req.body;
+  if (!name || !bio) {
+    res.status(400).json({ error: "Requires name and bio" });
+  }
+  userData.insert({ name, bio })
+    .then(({ id }) => {
+      userData.findById(id)
         .then(user => {
           res.status(201).json(user);
         })
         .catch(err => {
           console.log(err);
-          res.status(500).json({ error: "Server error retrieving user" });
-        });
+          res.status(500).json({ error: "Server error retrieving user"});
+        })
     })
     .catch(err => {
-      console.log(err);
-      res
-        .status(400)
-        .json({ errorMessage: "Please provide name and bio for the user." });
-    });
-});
+      console.log(err)
+      res.status(500).json({ error: "There was an error while saving the user to the database"})
+    })
+})
 
 // get user by id
 app.get("/api/users/:id", (req, res) => {
